@@ -5,3 +5,4 @@ mj.db
 *.db
 .DS_Store
 /tmp/
+.vercel
