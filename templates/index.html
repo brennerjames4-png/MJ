@@ -3,53 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MJ - Music Jam</title>
+    <title>MJ Tunes</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Rock+Salt&family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Sacramento&display=swap" rel="stylesheet">
     <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-    --flame: #e85d26;
-    --flame-dark: #c44a1c;
-    --gold: #f0a500;
-    --gold-dim: #c48800;
-    --vinyl: #0d0d0d;
-    --card: #1a1410;
-    --card-hover: #2a1f18;
-    --text: #f5e6d3;
-    --text-dim: #a89279;
-    --border: #3d2e1f;
-    --neon-blue: #00d4ff;
-    --purple: #9b59b6;
+    --cream: #faf3e8;
+    --warm-white: #f5ead6;
+    --parchment: #ede0cc;
+    --ink: #1a1510;
+    --ink-soft: #3d3425;
+    --ink-dim: #7a6b56;
+    --prism: #c06c3e;
+    --prism-glow: #d4854f;
+    --deep-blue: #2c3e6b;
+    --sky-blue: #6b8cae;
+    --rose: #b5544a;
+    --sage: #6b7c5e;
+    --gold-leaf: #c49b3c;
+    --violet: #7b6094;
+    --border: #d4c5aa;
+    --border-light: #e8dcc8;
 }
 
 body {
-    font-family: 'Special Elite', 'Courier New', monospace;
-    background: var(--vinyl);
-    color: var(--text);
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    background: var(--cream);
+    color: var(--ink);
     min-height: 100vh;
     background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(232,93,38,0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(240,165,0,0.04) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(155,89,182,0.04) 0%, transparent 50%);
+        radial-gradient(ellipse at 15% 20%, rgba(192,108,62,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 70%, rgba(44,62,107,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(123,96,148,0.03) 0%, transparent 60%);
 }
 
-/* Noise texture overlay */
+/* Subtle paper texture */
 body::before {
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.02'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
 }
 
 .container {
-    max-width: 860px;
+    max-width: 780px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px 20px;
     position: relative;
     z-index: 1;
 }
@@ -57,41 +61,49 @@ body::before {
 /* --- HEADER --- */
 header {
     text-align: center;
-    padding: 32px 0 24px;
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 28px;
+    padding: 40px 0 28px;
+    margin-bottom: 32px;
     position: relative;
 }
 
 header::after {
     content: '';
     position: absolute;
-    bottom: -2px;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--flame), var(--gold), var(--flame), transparent);
+    bottom: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), var(--prism), var(--border), transparent);
 }
 
 header h1 {
-    font-family: 'Anton', sans-serif;
-    font-size: 4rem;
-    letter-spacing: 8px;
-    background: linear-gradient(180deg, var(--gold) 0%, var(--flame) 60%, #8b2500 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: none;
-    filter: drop-shadow(0 2px 8px rgba(232,93,38,0.4));
+    font-family: 'Playfair Display', serif;
+    font-size: 3.8rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--ink);
     line-height: 1;
+    position: relative;
+}
+
+header h1 span.accent {
+    font-family: 'Sacramento', cursive;
+    font-size: 2rem;
+    color: var(--prism);
+    display: block;
+    margin-top: -4px;
+    font-weight: 400;
+    letter-spacing: 4px;
 }
 
 .subtitle {
-    font-family: 'Rock Salt', cursive;
-    color: var(--text-dim);
-    margin-top: 8px;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--ink-dim);
+    margin-top: 10px;
+    font-size: 0.7rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    font-weight: 300;
 }
 
 .user-bar {
@@ -99,257 +111,253 @@ header h1 {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-top: 16px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
+    margin-top: 18px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.85rem;
     letter-spacing: 2px;
+    font-weight: 300;
+    color: var(--ink-soft);
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    border: 2px solid var(--gold);
-    box-shadow: 0 0 10px rgba(240,165,0,0.3);
+    border: 2px solid var(--border);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+/* --- PRISM BAR (Pink Floyd inspired) --- */
+.prism-bar {
+    height: 3px;
+    margin: 0 auto 8px;
+    width: 200px;
+    background: linear-gradient(90deg,
+        #e74c3c 0%, #e67e22 17%, #f1c40f 33%,
+        #2ecc71 50%, #3498db 67%, #9b59b6 83%, #e74c3c 100%);
+    border-radius: 2px;
+    opacity: 0.6;
 }
 
 /* --- BUTTONS --- */
 .btn {
-    font-family: 'Bebas Neue', sans-serif;
-    background: var(--card-hover);
-    color: var(--text);
+    font-family: 'Josefin Sans', sans-serif;
+    background: transparent;
+    color: var(--ink-soft);
     border: 1px solid var(--border);
-    padding: 10px 24px;
-    border-radius: 4px;
+    padding: 10px 26px;
+    border-radius: 2px;
     cursor: pointer;
-    font-size: 16px;
-    letter-spacing: 2px;
-    transition: all 0.3s;
+    font-size: 12px;
+    letter-spacing: 3px;
+    transition: all 0.4s;
     text-transform: uppercase;
+    font-weight: 400;
 }
 
 .btn:hover {
-    background: var(--border);
-    border-color: var(--gold-dim);
-    box-shadow: 0 0 12px rgba(240,165,0,0.15);
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
 }
 
-.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-sm { padding: 5px 14px; font-size: 10px; letter-spacing: 2px; }
 
 .btn-spotify {
-    background: linear-gradient(135deg, var(--flame) 0%, var(--flame-dark) 100%);
+    background: var(--ink);
     border: none;
-    color: #fff;
-    font-weight: 600;
-    padding: 14px 32px;
-    font-size: 18px;
-    letter-spacing: 3px;
-    box-shadow: 0 4px 20px rgba(232,93,38,0.4);
+    color: var(--cream);
+    font-weight: 400;
+    padding: 16px 40px;
+    font-size: 13px;
+    letter-spacing: 4px;
     position: relative;
     overflow: hidden;
+    transition: all 0.4s;
 }
-
-.btn-spotify::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-    transition: left 0.5s;
-}
-
-.btn-spotify:hover::before { left: 100%; }
 
 .btn-spotify:hover {
-    background: linear-gradient(135deg, var(--gold) 0%, var(--flame) 100%);
-    box-shadow: 0 4px 30px rgba(240,165,0,0.5);
+    background: var(--prism);
+    box-shadow: 0 4px 24px rgba(192,108,62,0.25);
     transform: translateY(-1px);
 }
 
 /* --- HERO --- */
 .hero {
     text-align: center;
-    padding: 60px 20px 80px;
+    padding: 50px 20px 70px;
 }
 
 .hero h2 {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 2.2rem;
-    margin-bottom: 16px;
-    color: var(--text);
-    line-height: 1.3;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--ink);
+    line-height: 1.4;
+    font-weight: 400;
+    font-style: italic;
 }
 
 .hero p {
-    color: var(--text-dim);
-    margin-bottom: 32px;
-    max-width: 520px;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--ink-dim);
+    margin-bottom: 36px;
+    max-width: 480px;
     margin-left: auto;
     margin-right: auto;
-    font-size: 0.95rem;
-    line-height: 1.7;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    font-weight: 300;
 }
 
 .hero-tagline {
-    font-family: 'Rock Salt', cursive;
-    color: var(--flame);
-    font-size: 0.8rem;
-    margin-top: 24px;
-    opacity: 0.7;
+    font-family: 'Sacramento', cursive;
+    color: var(--prism);
+    font-size: 1.3rem;
+    margin-top: 28px;
 }
 
-/* --- VINYL DIVIDER --- */
-.vinyl-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin: 20px 0;
-    color: var(--text-dim);
-    font-size: 12px;
-    letter-spacing: 3px;
-}
-
-.vinyl-divider::before, .vinyl-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
+.hero-icons {
+    margin-top: 16px;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--ink-dim);
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: 300;
+    text-transform: uppercase;
 }
 
 /* --- TABS --- */
 .tabs {
     display: flex;
     gap: 0;
-    margin-bottom: 28px;
-    border-bottom: 2px solid var(--border);
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
     padding-bottom: 0;
 }
 
 .tab {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Josefin Sans', sans-serif;
     background: none;
     border: none;
-    color: var(--text-dim);
-    padding: 14px 24px;
+    color: var(--ink-dim);
+    padding: 14px 22px;
     cursor: pointer;
-    font-size: 17px;
+    font-size: 11px;
     letter-spacing: 3px;
-    border-bottom: 3px solid transparent;
+    border-bottom: 2px solid transparent;
     transition: all 0.3s;
     text-transform: uppercase;
-    position: relative;
+    font-weight: 400;
 }
 
 .tab:hover {
-    color: var(--text);
-    background: rgba(232,93,38,0.05);
+    color: var(--ink);
 }
 
 .tab.active {
-    color: var(--flame);
-    border-bottom-color: var(--flame);
-    text-shadow: 0 0 20px rgba(232,93,38,0.4);
+    color: var(--prism);
+    border-bottom-color: var(--prism);
 }
 
-.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content { display: none; animation: fadeIn 0.4s ease; }
 .tab-content.active { display: block; }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 /* Section headers */
 .tab-content h2 {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: 24px;
+    color: var(--ink);
+    font-weight: 400;
+    font-style: italic;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.tab-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 40px; height: 2px;
+    background: linear-gradient(90deg, var(--prism), var(--gold-leaf));
 }
 
 /* --- SONG CARDS --- */
-.song-list { display: flex; flex-direction: column; gap: 10px; }
+.song-list { display: flex; flex-direction: column; gap: 6px; }
 
 .song-card {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: linear-gradient(135deg, var(--card) 0%, rgba(26,20,16,0.8) 100%);
-    border-radius: 6px;
-    border: 1px solid var(--border);
+    gap: 16px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 3px;
+    border: 1px solid var(--border-light);
     transition: all 0.3s;
     position: relative;
-    overflow: hidden;
-}
-
-.song-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, var(--flame), var(--gold));
-    opacity: 0;
-    transition: opacity 0.3s;
 }
 
 .song-card:hover {
-    background: var(--card-hover);
-    border-color: var(--flame);
-    box-shadow: 0 2px 20px rgba(232,93,38,0.1);
-    transform: translateX(2px);
+    background: rgba(255,255,255,0.8);
+    border-color: var(--border);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
 }
 
-.song-card:hover::before { opacity: 1; }
-
 .song-card img {
-    width: 60px;
-    height: 60px;
-    border-radius: 4px;
+    width: 56px;
+    height: 56px;
+    border-radius: 2px;
     object-fit: cover;
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .song-info { flex: 1; min-width: 0; }
 
 .song-info .name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-weight: 400;
-    font-size: 1.15rem;
-    letter-spacing: 1px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--text);
+    color: var(--ink);
 }
 
 .song-info .artist {
-    color: var(--gold-dim);
-    font-size: 12px;
-    margin-top: 2px;
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--prism);
+    font-size: 11px;
+    margin-top: 3px;
     letter-spacing: 1px;
+    font-weight: 300;
+    text-transform: uppercase;
 }
 
 .song-info .meta {
-    color: var(--text-dim);
-    font-size: 11px;
+    color: var(--ink-dim);
+    font-size: 12px;
     margin-top: 4px;
     font-style: italic;
+    font-weight: 300;
 }
 
 .song-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
 .reaction-btn {
-    background: var(--card);
+    background: transparent;
     border: 1px solid var(--border);
-    color: var(--text-dim);
-    width: 40px;
-    height: 40px;
+    color: var(--ink-dim);
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 17px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -357,96 +365,105 @@ header h1 {
 }
 
 .reaction-btn:hover {
-    border-color: var(--flame);
-    color: var(--flame);
-    box-shadow: 0 0 12px rgba(232,93,38,0.3);
-    transform: scale(1.1);
+    border-color: var(--prism);
+    color: var(--prism);
+    transform: scale(1.08);
 }
 
 .reaction-btn.active {
-    background: linear-gradient(135deg, var(--flame), var(--gold));
-    border-color: var(--gold);
+    background: var(--prism);
+    border-color: var(--prism);
     color: #fff;
-    box-shadow: 0 0 16px rgba(240,165,0,0.4);
+    box-shadow: 0 2px 10px rgba(192,108,62,0.3);
 }
 
 .share-btn {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Josefin Sans', sans-serif;
     background: none;
-    border: 1px solid var(--flame);
-    color: var(--flame);
-    padding: 8px 18px;
-    border-radius: 4px;
+    border: 1px solid var(--prism);
+    color: var(--prism);
+    padding: 7px 18px;
+    border-radius: 2px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
     transition: all 0.3s;
 }
 
 .share-btn:hover {
-    background: var(--flame);
+    background: var(--prism);
     color: #fff;
-    box-shadow: 0 0 16px rgba(232,93,38,0.4);
 }
 
 /* --- SEARCH --- */
 .search-box {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .search-box input {
     flex: 1;
     padding: 14px 20px;
-    background: var(--card);
+    background: rgba(255,255,255,0.6);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-family: 'Special Elite', monospace;
-    font-size: 15px;
+    border-radius: 2px;
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
     outline: none;
-    transition: border-color 0.3s;
+    transition: all 0.3s;
 }
 
-.search-box input::placeholder { color: var(--text-dim); }
+.search-box input::placeholder {
+    color: var(--ink-dim);
+    font-style: italic;
+}
 
 .search-box input:focus {
-    border-color: var(--flame);
-    box-shadow: 0 0 12px rgba(232,93,38,0.15);
+    border-color: var(--prism);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 3px rgba(192,108,62,0.08);
 }
 
 /* --- SHARE FORM --- */
 .share-form {
-    margin-top: 20px;
-    padding: 20px;
-    background: var(--card);
-    border-radius: 6px;
-    border: 1px solid var(--border);
+    margin-top: 24px;
+    padding: 24px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 3px;
+    border: 1px solid var(--border-light);
 }
 
 .share-form h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    margin-bottom: 12px;
-    font-size: 16px;
-    letter-spacing: 2px;
-    color: var(--gold);
+    font-family: 'Josefin Sans', sans-serif;
+    margin-bottom: 14px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    font-weight: 400;
 }
 
 .share-form select, .share-form textarea {
     width: 100%;
     padding: 12px;
-    background: var(--vinyl);
+    background: rgba(255,255,255,0.6);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-family: 'Special Elite', monospace;
-    font-size: 14px;
+    border-radius: 2px;
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
     margin-bottom: 10px;
 }
 
-.share-form textarea { resize: vertical; min-height: 60px; }
+.share-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.share-form textarea::placeholder { font-style: italic; color: var(--ink-dim); }
 
 /* --- COMPARE --- */
 .compare-picker {
@@ -454,26 +471,31 @@ header h1 {
     align-items: center;
     gap: 14px;
     margin-bottom: 28px;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Josefin Sans', sans-serif;
     letter-spacing: 2px;
+    font-size: 11px;
+    text-transform: uppercase;
 }
 
-.compare-picker label { color: var(--gold); }
+.compare-picker label {
+    color: var(--ink-soft);
+    font-weight: 400;
+}
 
 .compare-picker select {
     flex: 1;
     padding: 12px;
-    background: var(--card);
+    background: rgba(255,255,255,0.6);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-family: 'Special Elite', monospace;
-    font-size: 14px;
+    border-radius: 2px;
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
 }
 
 .compat-score {
     text-align: center;
-    padding: 40px 20px;
+    padding: 44px 20px;
     position: relative;
 }
 
@@ -482,120 +504,146 @@ header h1 {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 180px; height: 180px;
+    width: 160px; height: 160px;
     border-radius: 50%;
-    border: 2px solid var(--flame);
-    opacity: 0.15;
+    border: 1px solid var(--border);
 }
 
 .compat-score #compat-number {
-    font-family: 'Anton', sans-serif;
+    font-family: 'Playfair Display', serif;
     font-size: 5rem;
-    background: linear-gradient(180deg, var(--gold) 0%, var(--flame) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 2px 12px rgba(232,93,38,0.5));
+    font-weight: 900;
+    color: var(--prism);
 }
 
 .compat-score span:last-of-type {
-    font-family: 'Anton', sans-serif;
-    font-size: 2.5rem;
-    background: linear-gradient(180deg, var(--gold) 0%, var(--flame) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--prism);
+    font-weight: 300;
 }
 
 .compat-score p {
-    font-family: 'Rock Salt', cursive;
-    color: var(--text-dim);
+    font-family: 'Sacramento', cursive;
+    color: var(--ink-dim);
     margin-top: 8px;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
+    font-size: 1.2rem;
 }
 
 .compare-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-    margin-top: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 28px;
 }
 
 .compare-grid h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    color: var(--flame);
-    font-size: 16px;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 6px;
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--prism);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 400;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 8px;
 }
 
 .compare-grid ul {
     list-style: none;
-    color: var(--text-dim);
-    font-size: 13px;
+    color: var(--ink-dim);
+    font-size: 14px;
 }
 
 .compare-grid li {
     padding: 6px 0;
-    border-bottom: 1px solid rgba(61,46,31,0.5);
+    border-bottom: 1px solid var(--border-light);
     transition: color 0.2s;
+    font-weight: 300;
 }
 
-.compare-grid li:hover { color: var(--text); }
+.compare-grid li:hover { color: var(--ink); }
 
 /* --- UTILITIES --- */
 .hidden { display: none; }
 
 .loading {
-    color: var(--text-dim);
+    color: var(--ink-dim);
     text-align: center;
-    padding: 32px;
+    padding: 40px;
     font-style: italic;
-    letter-spacing: 1px;
+    font-size: 1.05rem;
+    font-weight: 300;
 }
 
 a.spotify-link {
-    color: var(--gold-dim);
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--sage);
     text-decoration: none;
-    font-size: 11px;
-    letter-spacing: 1px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     transition: color 0.2s;
 }
 
 a.spotify-link:hover {
-    color: var(--gold);
-    text-decoration: underline;
+    color: var(--prism);
 }
 
 /* --- SCROLLBAR --- */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--vinyl); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
 ::-webkit-scrollbar-thumb {
     background: var(--border);
-    border-radius: 4px;
+    border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--flame); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-dim); }
+
+/* --- FOOTER QUOTE --- */
+.footer-quote {
+    text-align: center;
+    margin-top: 60px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-light);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--ink-dim);
+    font-size: 0.95rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+.footer-quote .attr {
+    display: block;
+    margin-top: 6px;
+    font-style: normal;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    opacity: 0.6;
+}
 
 /* --- RESPONSIVE --- */
 @media (max-width: 600px) {
-    header h1 { font-size: 2.8rem; letter-spacing: 4px; }
+    header h1 { font-size: 2.6rem; }
     .hero h2 { font-size: 1.5rem; }
     .tabs { flex-wrap: wrap; }
-    .tab { padding: 10px 14px; font-size: 14px; letter-spacing: 1px; }
-    .song-card { padding: 10px; gap: 10px; }
+    .tab { padding: 10px 14px; font-size: 10px; letter-spacing: 2px; }
+    .song-card { padding: 12px; gap: 12px; }
     .song-card img { width: 48px; height: 48px; }
     .compare-picker { flex-wrap: wrap; }
+    .prism-bar { width: 140px; }
 }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>MUSIC JAM</h1>
-            <p class="subtitle">Turn it up to eleven</p>
+            <div class="prism-bar"></div>
+            <h1>MJ Tunes <span class="accent">for the record</span></h1>
+            <p class="subtitle">A listening room for two</p>
             {% if logged_in %}
             <div class="user-bar">
                 {% if user.image_url %}
@@ -609,68 +657,69 @@ a.spotify-link:hover {
 
         {% if not logged_in %}
         <div class="hero">
-            <h2>Share the riffs. Compare the taste. Rock together.</h2>
-            <p>Plug in your Spotify, send your favorite tracks to your crew, rate each other's picks, and find out if your taste is classic gold or garage noise.</p>
-            <a href="/login" class="btn btn-spotify">Plug In With Spotify</a>
-            <p class="hero-tagline">~ where good taste meets loud opinions ~</p>
+            <h2>"Music is the shorthand of emotion"</h2>
+            <p>Connect your Spotify, share the songs that move you, hear what moves your friend, and discover where your musical souls overlap.</p>
+            <a href="/login" class="btn btn-spotify">Connect with Spotify</a>
+            <p class="hero-tagline">the long and winding road starts here</p>
+            <p class="hero-icons">Cat Stevens / Pink Floyd / Led Zeppelin / The Beatles</p>
         </div>
         {% else %}
         <nav class="tabs">
-            <button class="tab active" data-tab="feed">The Feed</button>
-            <button class="tab" data-tab="share">Drop a Track</button>
-            <button class="tab" data-tab="compare">Face Off</button>
-            <button class="tab" data-tab="my-top">My Bangers</button>
+            <button class="tab active" data-tab="feed">The Record</button>
+            <button class="tab" data-tab="share">Send a Song</button>
+            <button class="tab" data-tab="compare">Side by Side</button>
+            <button class="tab" data-tab="my-top">My Catalogue</button>
         </nav>
 
         <!-- FEED TAB -->
         <section id="feed" class="tab-content active">
-            <h2>The Setlist</h2>
+            <h2>Lately, between us</h2>
             <div id="feed-list" class="song-list">
-                <p class="loading">Tuning the guitars...</p>
+                <p class="loading">Dropping the needle...</p>
             </div>
         </section>
 
         <!-- SHARE TAB -->
         <section id="share" class="tab-content">
-            <h2>Drop a Track</h2>
+            <h2>Send something beautiful</h2>
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search for a banger...">
-                <button id="search-btn" class="btn">Search</button>
+                <input type="text" id="search-input" placeholder="Search for a song that says it all...">
+                <button id="search-btn" class="btn">Find</button>
             </div>
             <div id="search-results" class="song-list"></div>
 
             <div id="share-form" class="share-form hidden">
-                <h3>Send it to:</h3>
+                <h3>Dedicate to</h3>
                 <select id="share-to"></select>
-                <textarea id="share-message" placeholder="Drop a message with the track..."></textarea>
-                <button id="send-btn" class="btn btn-spotify">Send It</button>
+                <textarea id="share-message" placeholder="Say something about why this one matters..."></textarea>
+                <button id="send-btn" class="btn btn-spotify">Send it over</button>
             </div>
         </section>
 
         <!-- COMPARE TAB -->
         <section id="compare" class="tab-content">
-            <h2>Face Off</h2>
+            <h2>Where our tastes collide</h2>
             <div class="compare-picker">
-                <label>Battle against:</label>
+                <label>Compare with:</label>
                 <select id="compare-user"></select>
-                <button id="compare-btn" class="btn">Let's Go</button>
+                <button id="compare-btn" class="btn">Reveal</button>
             </div>
             <div id="compare-results" class="hidden">
                 <div class="compat-score">
                     <span id="compat-number">0</span><span>%</span>
-                    <p>rock compatibility</p>
+                    <p>musical kinship</p>
                 </div>
                 <div class="compare-grid">
                     <div>
-                        <h3>Shared Legends</h3>
+                        <h3>Artists you both love</h3>
                         <ul id="shared-artists"></ul>
                     </div>
                     <div>
-                        <h3>Your Frequencies</h3>
+                        <h3>Your sound</h3>
                         <ul id="my-genres"></ul>
                     </div>
                     <div>
-                        <h3>Their Frequencies</h3>
+                        <h3>Their sound</h3>
                         <ul id="their-genres"></ul>
                     </div>
                 </div>
@@ -679,12 +728,17 @@ a.spotify-link:hover {
 
         <!-- MY TOP TAB -->
         <section id="my-top" class="tab-content">
-            <h2>My Bangers</h2>
+            <h2>What's been on repeat</h2>
             <div id="top-tracks-list" class="song-list">
-                <p class="loading">Loading the vinyl collection...</p>
+                <p class="loading">Flipping through the crates...</p>
             </div>
         </section>
         {% endif %}
+
+        <div class="footer-quote">
+            "One good thing about music, when it hits you, you feel no pain"
+            <span class="attr">Bob Marley</span>
+        </div>
     </div>
 
     {% if logged_in %}
@@ -724,7 +778,7 @@ function songCard(track, actions = '') {
                 <div class="name">${track.name || track.track_name || ''}</div>
                 <div class="artist">${track.artist || track.artist_name || ''}</div>
                 ${track.meta ? `<div class="meta">${track.meta}</div>` : ''}
-                ${track.spotify_url ? `<a class="spotify-link" href="${track.spotify_url}" target="_blank">Open in Spotify</a>` : ''}
+                ${track.spotify_url ? `<a class="spotify-link" href="${track.spotify_url}" target="_blank">Listen on Spotify</a>` : ''}
             </div>
             <div class="song-actions">${actions}</div>
         </div>
@@ -737,23 +791,23 @@ async function loadFeed() {
     try {
         const songs = await api('/api/shared');
         if (songs.length === 0) {
-            el.innerHTML = '<p class="loading">No tracks shared yet. Be the first to drop one!</p>';
+            el.innerHTML = '<p class="loading">Nothing shared yet. Send the first song.</p>';
             return;
         }
         el.innerHTML = songs.map(s => {
             const isMine = s.from_user_id === MY_ID;
-            const direction = isMine ? `You sent` : `From ${s.from_name}`;
-            const meta = `${direction} ${s.message ? '- "' + s.message + '"' : ''} - ${new Date(s.created_at).toLocaleDateString()}`;
+            const direction = isMine ? `You shared` : `From ${s.from_name}`;
+            const meta = `${direction} ${s.message ? '~ "' + s.message + '"' : ''} ~ ${new Date(s.created_at).toLocaleDateString()}`;
             const likeActive = s.my_reaction === 'like' ? 'active' : '';
             const dislikeActive = s.my_reaction === 'dislike' ? 'active' : '';
             return songCard(
                 { ...s, name: s.track_name, artist: s.artist_name, meta },
-                `<button class="reaction-btn ${likeActive}" onclick="react(${s.id}, 'like', this)" title="Encore!">&#x1F918;</button>
-                 <button class="reaction-btn ${dislikeActive}" onclick="react(${s.id}, 'dislike', this)" title="Next!">&#x1F44E;</button>`
+                `<button class="reaction-btn ${likeActive}" onclick="react(${s.id}, 'like', this)" title="Love it">&#x2764;</button>
+                 <button class="reaction-btn ${dislikeActive}" onclick="react(${s.id}, 'dislike', this)" title="Not for me">&#x1F44E;</button>`
             );
         }).join('');
     } catch (e) {
-        el.innerHTML = '<p class="loading">Could not load the setlist.</p>';
+        el.innerHTML = '<p class="loading">Could not load the record.</p>';
     }
 }
 
@@ -789,7 +843,7 @@ window.selectTrack = async function(track) {
     const users = await api('/api/users');
     const sel = document.getElementById('share-to');
     sel.innerHTML = users.map(u => `<option value="${u.id}">${u.display_name}</option>`).join('');
-    if (users.length === 0) sel.innerHTML = '<option disabled>No one else has plugged in yet</option>';
+    if (users.length === 0) sel.innerHTML = '<option disabled>No one else is here yet</option>';
 };
 
 document.getElementById('send-btn').addEventListener('click', async () => {
@@ -812,7 +866,7 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     document.getElementById('share-form').classList.add('hidden');
     document.getElementById('share-message').value = '';
     selectedTrack = null;
-    alert('Track sent! Rock on.');
+    alert('Sent. Like a letter in a bottle.');
     document.querySelector('[data-tab="feed"]').click();
     loadFeed();
 });
@@ -823,7 +877,7 @@ async function loadCompareUsers() {
         const users = await api('/api/users');
         const sel = document.getElementById('compare-user');
         sel.innerHTML = users.map(u => `<option value="${u.id}">${u.display_name}</option>`).join('');
-        if (users.length === 0) sel.innerHTML = '<option disabled>No challengers yet</option>';
+        if (users.length === 0) sel.innerHTML = '<option disabled>Waiting for a friend to join</option>';
     } catch (e) {}
 }
 
@@ -836,11 +890,11 @@ document.getElementById('compare-btn').addEventListener('click', async () => {
         document.getElementById('compat-number').textContent = data.compatibility_score;
         document.getElementById('shared-artists').innerHTML = data.shared_artists.length
             ? data.shared_artists.map(a => `<li>${a}</li>`).join('')
-            : '<li>No shared legends found</li>';
+            : '<li>No shared artists yet</li>';
         document.getElementById('my-genres').innerHTML = data.my_top_genres.map(g => `<li>${g}</li>`).join('');
         document.getElementById('their-genres').innerHTML = data.their_top_genres.map(g => `<li>${g}</li>`).join('');
     } catch (e) {
-        alert('Could not compare. Make sure both rockers are plugged in.');
+        alert('Could not compare. Make sure you\'re both connected.');
     }
 });
 
@@ -851,9 +905,9 @@ async function loadTopTracks() {
         const tracks = await api('/api/me/top-tracks');
         el.innerHTML = tracks.length
             ? tracks.map((t, i) => songCard({ ...t, meta: `#${i + 1}` })).join('')
-            : '<p class="loading">No top tracks yet. Get listening!</p>';
+            : '<p class="loading">No listening history yet. Play some records.</p>';
     } catch (e) {
-        el.innerHTML = '<p class="loading">Could not load your bangers.</p>';
+        el.innerHTML = '<p class="loading">Could not load your catalogue.</p>';
     }
 }
 

@@ -220,7 +220,7 @@ async def my_top_tracks(request: Request):
     if not user_id:
         raise HTTPException(401)
     token = await get_valid_token(user_id)
-    data = await spotify_get(token, "me/top/tracks", {"limit": 20, "time_range": "short_term"})
+    data = await spotify_get(token, "me/top/tracks", {"limit": 50, "time_range": "medium_term"})
     return [
         {
             "id": t["id"],
