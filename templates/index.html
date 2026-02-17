@@ -611,6 +611,20 @@ a.spotify-link:hover {
     font-size: 0.95rem;
     font-weight: 300;
     letter-spacing: 0.5px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-quote .quote-text {
+    transition: opacity 0.6s ease;
+    opacity: 1;
+}
+
+.footer-quote .quote-text.fade-out {
+    opacity: 0;
 }
 
 .footer-quote .attr {
@@ -623,6 +637,11 @@ a.spotify-link:hover {
     text-transform: uppercase;
     color: var(--ink-dim);
     opacity: 0.6;
+    transition: opacity 0.6s ease;
+}
+
+.footer-quote .attr.fade-out {
+    opacity: 0;
 }
 
 /* --- RESPONSIVE --- */
@@ -735,9 +754,9 @@ a.spotify-link:hover {
         </section>
         {% endif %}
 
-        <div class="footer-quote">
-            "One good thing about music, when it hits you, you feel no pain"
-            <span class="attr">Bob Marley</span>
+        <div class="footer-quote" id="footer-quote">
+            <span class="quote-text" id="quote-text">"One good thing about music, when it hits you, you feel no pain"</span>
+            <span class="attr" id="quote-attr">Bob Marley</span>
         </div>
     </div>
 
@@ -917,5 +936,45 @@ loadTopTracks();
 loadCompareUsers();
     </script>
     {% endif %}
+
+    <script>
+    // --- Rotating footer quotes ---
+    const quotes = [
+        { text: "Music is the shorthand of emotion", attr: "Leo Tolstoy" },
+        { text: "One good thing about music, when it hits you, you feel no pain", attr: "Bob Marley" },
+        { text: "Where words fail, music speaks", attr: "Hans Christian Andersen" },
+        { text: "Without music, life would be a mistake", attr: "Friedrich Nietzsche" },
+        { text: "Music expresses that which cannot be said", attr: "Victor Hugo" },
+        { text: "Life is one grand sweet song, so start the music", attr: "Ronald Reagan" },
+        { text: "Music is the universal language of mankind", attr: "Henry Wadsworth Longfellow" },
+        { text: "After silence, that which comes nearest to expressing the inexpressible is music", attr: "Aldous Huxley" },
+        { text: "Music gives a soul to the universe, wings to the mind, flight to the imagination", attr: "Plato" },
+        { text: "I think music in itself is healing", attr: "Billy Joel" },
+        { text: "Music is the strongest form of magic", attr: "Marilyn Manson" },
+        { text: "Music is what feelings sound like", attr: "Unknown" },
+        { text: "To live is to be musical, starting with the blood dancing in your veins", attr: "Michael Jackson" },
+        { text: "Music washes away from the soul the dust of everyday life", attr: "Berthold Auerbach" },
+        { text: "Music is the art which is most nigh to tears and memory", attr: "Oscar Wilde" },
+    ];
+
+    let quoteIndex = 0;
+    const quoteText = document.getElementById('quote-text');
+    const quoteAttr = document.getElementById('quote-attr');
+
+    if (quoteText && quoteAttr) {
+        setInterval(() => {
+            quoteText.classList.add('fade-out');
+            quoteAttr.classList.add('fade-out');
+
+            setTimeout(() => {
+                quoteIndex = (quoteIndex + 1) % quotes.length;
+                quoteText.textContent = '"' + quotes[quoteIndex].text + '"';
+                quoteAttr.textContent = quotes[quoteIndex].attr;
+                quoteText.classList.remove('fade-out');
+                quoteAttr.classList.remove('fade-out');
+            }, 600);
+        }, 10000);
+    }
+    </script>
 </body>
 </html>
