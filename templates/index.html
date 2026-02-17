@@ -564,11 +564,52 @@ header h1 span.accent {
 
 .compare-grid li:hover { color: var(--ink); }
 
+/* --- SUB-TABS (within Side by Side) --- */
+.sub-tabs {
+    display: flex;
+    gap: 0;
+    margin-top: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sub-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 8px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.sub-tab:hover {
+    color: var(--ink);
+}
+
+.sub-tab.active {
+    color: var(--prism);
+    border-bottom-color: var(--prism);
+    font-weight: 600;
+}
+
+.sub-tab-content {
+    display: none;
+}
+
+.sub-tab-content.active {
+    display: block;
+}
+
 /* --- COMBINED CHART --- */
 .combined-chart {
-    margin-top: 40px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border-light);
+    margin-top: 20px;
+    padding-top: 16px;
 }
 
 .chart-title {
@@ -861,44 +902,52 @@ a.spotify-link:hover {
                     <p>musical kinship</p>
                 </div>
 
-                <div class="combined-chart">
-                    <h3 class="chart-title">The Definitive Chart</h3>
-                    <p class="chart-subtitle">Every song from both your top 50s, ranked together</p>
-                    <div id="combined-tracks" class="song-list"></div>
-                    <button id="show-more-chart" class="btn btn-expand hidden" onclick="toggleChart()">Show full chart <span id="chart-remaining"></span></button>
-                </div>
+                <nav class="sub-tabs">
+                    <button class="sub-tab active" data-subtab="sub-chart">The Definitive Chart</button>
+                    <button class="sub-tab" data-subtab="sub-recent">Just Played</button>
+                    <button class="sub-tab" data-subtab="sub-artists">Artists & Genres</button>
+                </nav>
 
-                <div class="combined-chart">
-                    <h3 class="chart-title">Just Played</h3>
-                    <p class="chart-subtitle">What you've both been listening to recently</p>
-                    <div class="recent-side-by-side">
-                        <div class="recent-column">
-                            <h4 class="recent-col-header" id="recent-left-name">You</h4>
-                            <div id="recent-left" class="song-list">
-                                <p class="loading">Checking the turntable...</p>
-                            </div>
-                        </div>
-                        <div class="recent-column">
-                            <h4 class="recent-col-header" id="recent-right-name">Them</h4>
-                            <div id="recent-right" class="song-list">
-                                <p class="loading">Checking the turntable...</p>
-                            </div>
-                        </div>
+                <div id="sub-chart" class="sub-tab-content active">
+                    <div class="combined-chart">
+                        <div id="combined-tracks" class="song-list"></div>
+                        <button id="show-more-chart" class="btn btn-expand hidden" onclick="toggleChart()">Show full chart <span id="chart-remaining"></span></button>
                     </div>
                 </div>
 
-                <div class="compare-grid">
-                    <div>
-                        <h3>Artists you both love</h3>
-                        <ul id="shared-artists"></ul>
+                <div id="sub-recent" class="sub-tab-content">
+                    <div class="combined-chart">
+                        <div class="recent-side-by-side">
+                            <div class="recent-column">
+                                <h4 class="recent-col-header" id="recent-left-name">You</h4>
+                                <div id="recent-left" class="song-list">
+                                    <p class="loading">Checking the turntable...</p>
+                                </div>
+                            </div>
+                            <div class="recent-column">
+                                <h4 class="recent-col-header" id="recent-right-name">Them</h4>
+                                <div id="recent-right" class="song-list">
+                                    <p class="loading">Checking the turntable...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3>Your sound</h3>
-                        <ul id="my-genres"></ul>
-                    </div>
-                    <div>
-                        <h3>Their sound</h3>
-                        <ul id="their-genres"></ul>
+                </div>
+
+                <div id="sub-artists" class="sub-tab-content">
+                    <div class="compare-grid">
+                        <div>
+                            <h3>Artists you both love</h3>
+                            <ul id="shared-artists"></ul>
+                        </div>
+                        <div>
+                            <h3>Your sound</h3>
+                            <ul id="my-genres"></ul>
+                        </div>
+                        <div>
+                            <h3>Their sound</h3>
+                            <ul id="their-genres"></ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1057,6 +1106,16 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     alert('Sent. Like a letter in a bottle.');
     document.querySelector('[data-tab="feed"]').click();
     loadFeed();
+});
+
+// --- Sub-tabs within Side by Side ---
+document.querySelectorAll('.sub-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.subtab).classList.add('active');
+    });
 });
 
 // --- Compare ---
