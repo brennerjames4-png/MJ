@@ -235,24 +235,46 @@ async def my_top_tracks(request: Request):
     ]
 
 
-@app.get("/api/me/recently-played")
-async def my_recently_played(request: Request):
+@app.get("/api/recently-played")
+async def all_recently_played(request: Request):
+    """Fetch recently played tracks for ALL users, merged and sorted by time."""
     user_id = get_current_user_id(request)
     if not user_id:
         raise HTTPException(401)
-    token = await get_valid_token(user_id)
-    data = await spotify_get(token, "me/player/recently-played", {"limit": 20})
-    return [
-        {
-            "id": item["track"]["id"],
-            "name": item["track"]["name"],
-            "artist": ", ".join(a["name"] for a in item["track"]["artists"]),
-            "album_image": item["track"]["album"]["images"][0]["url"] if item["track"]["album"]["images"] else "",
-            "spotify_url": item["track"]["external_urls"]["spotify"],
-            "played_at": item["played_at"],
-        }
-        for item in data["items"]
-    ]
+
+    # Get all users from the database
+    conn = await get_db()
+    try:
+        rows = await conn.fetch("SELECT id, display_name FROM users")
+    finally:
+        await release_db(conn)
+
+    all_tracks = []
+    for row in rows:
+        uid = row["id"]
+        name = row["display_name"]
+        try:
+            token = await get_valid_token(uid)
+            if not token:
+                continue
+            data = await spotify_get(token, "me/player/recently-played", {"limit": 20})
+            for item in data["items"]:
+                all_tracks.append({
+                    "id": item["track"]["id"],
+                    "name": item["track"]["name"],
+                    "artist": ", ".join(a["name"] for a in item["track"]["artists"]),
+                    "album_image": item["track"]["album"]["images"][0]["url"] if item["track"]["album"]["images"] else "",
+                    "spotify_url": item["track"]["external_urls"]["spotify"],
+                    "played_at": item["played_at"],
+                    "user_id": uid,
+                    "user_name": name,
+                })
+        except Exception:
+            continue
+
+    # Sort by played_at descending (most recent first) and take top 20
+    all_tracks.sort(key=lambda x: x["played_at"], reverse=True)
+    return all_tracks[:20]
 
 
 @app.get("/api/me/top-artists")
