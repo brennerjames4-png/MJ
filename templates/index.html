@@ -622,6 +622,37 @@ header h1 span.accent {
     border-left: 3px solid var(--prism);
 }
 
+.combined-chart .song-card.chart-hidden {
+    display: none;
+}
+
+.btn-expand {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.btn-expand:hover {
+    border-color: var(--prism);
+    color: var(--prism);
+}
+
+.btn-expand span {
+    font-weight: 300;
+    opacity: 0.7;
+}
+
 /* --- UTILITIES --- */
 .hidden { display: none; }
 
@@ -805,6 +836,7 @@ a.spotify-link:hover {
                     <h3 class="chart-title">The Definitive Chart</h3>
                     <p class="chart-subtitle">Every song from both your top 50s, ranked together</p>
                     <div id="combined-tracks" class="song-list"></div>
+                    <button id="show-more-chart" class="btn btn-expand hidden" onclick="toggleChart()">Show full chart <span id="chart-remaining"></span></button>
                 </div>
             </div>
         </section>
@@ -977,16 +1009,19 @@ document.getElementById('compare-btn').addEventListener('click', async () => {
         document.getElementById('my-genres').innerHTML = data.my_top_genres.map(g => `<li>${g}</li>`).join('');
         document.getElementById('their-genres').innerHTML = data.their_top_genres.map(g => `<li>${g}</li>`).join('');
 
-        // Render combined chart
+        // Render combined chart (show top 10, hide rest)
         const ct = document.getElementById('combined-tracks');
+        const showMoreBtn = document.getElementById('show-more-chart');
+        const chartRemaining = document.getElementById('chart-remaining');
         if (data.combined_tracks && data.combined_tracks.length > 0) {
             ct.innerHTML = data.combined_tracks.map(t => {
                 const myR = t.my_rank ? `Your #${t.my_rank}` : 'Not in your top 50';
                 const theirR = t.their_rank ? `Their #${t.their_rank}` : 'Not in their top 50';
                 const sharedClass = t.shared ? ' is-shared' : '';
+                const hiddenClass = t.combined_rank > 10 ? ' chart-hidden' : '';
                 const sharedLabel = t.shared ? '<span class="shared-badge"> \u2022 Both of you</span>' : '';
                 return `
-                    <div class="song-card${sharedClass}">
+                    <div class="song-card${sharedClass}${hiddenClass}">
                         <div class="combined-rank">#${t.combined_rank}</div>
                         ${t.album_image ? `<img src="${t.album_image}" alt="">` : ''}
                         <div class="song-info">
@@ -998,11 +1033,44 @@ document.getElementById('compare-btn').addEventListener('click', async () => {
                     </div>
                 `;
             }).join('');
+            // Show expand button if more than 10 tracks
+            if (data.combined_tracks.length > 10) {
+                const remaining = data.combined_tracks.length - 10;
+                chartRemaining.textContent = `(${remaining} more)`;
+                showMoreBtn.classList.remove('hidden');
+            } else {
+                showMoreBtn.classList.add('hidden');
+            }
         }
     } catch (e) {
         alert('Could not compare. Make sure you\'re both connected.');
     }
 });
+
+// --- Chart expand/collapse ---
+window.toggleChart = function() {
+    const cards = document.querySelectorAll('#combined-tracks .song-card.chart-hidden');
+    const btn = document.getElementById('show-more-chart');
+    const isExpanded = btn.dataset.expanded === 'true';
+
+    if (isExpanded) {
+        // Collapse: hide cards beyond top 10
+        document.querySelectorAll('#combined-tracks .song-card').forEach((card, i) => {
+            if (i >= 10) card.classList.add('chart-hidden');
+        });
+        btn.innerHTML = 'Show full chart <span id="chart-remaining">(' + (document.querySelectorAll('#combined-tracks .song-card').length - 10) + ' more)</span>';
+        btn.dataset.expanded = 'false';
+        // Scroll back to chart top
+        document.querySelector('.combined-chart').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        // Expand: show all
+        document.querySelectorAll('#combined-tracks .song-card').forEach(card => {
+            card.classList.remove('chart-hidden');
+        });
+        btn.innerHTML = 'Show top 10 only';
+        btn.dataset.expanded = 'true';
+    }
+};
 
 // --- My top tracks ---
 async function loadTopTracks() {
