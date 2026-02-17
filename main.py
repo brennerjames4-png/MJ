@@ -1,5 +1,6 @@
 import os
 import time
+import random
 import urllib.parse
 
 import httpx
@@ -383,6 +384,53 @@ async def react_to_song(request: Request):
     finally:
         await release_db(conn)
     return {"ok": True}
+
+
+@app.get("/api/me/top-lyrics")
+async def my_top_lyrics(request: Request):
+    """Fetch random lyrics lines from the user's top 50 tracks using lyrics.ovh."""
+    user_id = get_current_user_id(request)
+    if not user_id:
+        raise HTTPException(401)
+    token = await get_valid_token(user_id)
+    data = await spotify_get(token, "me/top/tracks", {"limit": 50, "time_range": "medium_term"})
+
+    lyrics_quotes = []
+
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        for t in data["items"]:
+            track_name = t["name"]
+            artist_name = t["artists"][0]["name"] if t["artists"] else "Unknown"
+            # Clean track name for the API (remove features, brackets, etc.)
+            clean_name = track_name.split(" (")[0].split(" -")[0].split(" feat")[0].split(" ft.")[0].strip()
+            try:
+                resp = await client.get(
+                    f"https://api.lyrics.ovh/v1/{urllib.parse.quote(artist_name)}/{urllib.parse.quote(clean_name)}"
+                )
+                if resp.status_code == 200:
+                    lyrics_text = resp.json().get("lyrics", "")
+                    if lyrics_text:
+                        # Split into lines, filter out empty/short/header lines
+                        lines = [
+                            line.strip() for line in lyrics_text.split("\n")
+                            if line.strip()
+                            and len(line.strip()) > 10
+                            and not line.strip().startswith("[")
+                            and not line.strip().startswith("(")
+                            and "Paroles de" not in line
+                        ]
+                        if lines:
+                            chosen = random.choice(lines)
+                            lyrics_quotes.append({
+                                "text": chosen,
+                                "attr": f"{track_name} — {artist_name}",
+                            })
+            except Exception:
+                continue  # Skip tracks where lyrics fetch fails
+
+    # Shuffle the results
+    random.shuffle(lyrics_quotes)
+    return lyrics_quotes
 
 
 if __name__ == "__main__":

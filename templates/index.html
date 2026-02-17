@@ -938,11 +938,9 @@ loadCompareUsers();
     {% endif %}
 
     <script>
-    // --- Rotating footer quotes from user's top 50 ---
+    // --- Rotating footer lyrics from user's top 50 songs ---
     const defaultQuotes = [
-        { text: "Music is the shorthand of emotion", attr: "Leo Tolstoy" },
-        { text: "Where words fail, music speaks", attr: "Hans Christian Andersen" },
-        { text: "Without music, life would be a mistake", attr: "Friedrich Nietzsche" },
+        { text: "One good thing about music, when it hits you, you feel no pain", attr: "Bob Marley" },
     ];
 
     let footerQuotes = defaultQuotes;
@@ -950,33 +948,27 @@ loadCompareUsers();
     const quoteText = document.getElementById('quote-text');
     const quoteAttr = document.getElementById('quote-attr');
 
-    // Try to load user's top tracks for the footer
+    // Load actual lyrics from the user's top 50 tracks
     {% if logged_in %}
     (async function() {
         try {
-            const resp = await fetch('/api/me/top-tracks', {
+            const resp = await fetch('/api/me/top-lyrics', {
                 headers: { 'Content-Type': 'application/json' }
             });
             if (resp.ok) {
-                const tracks = await resp.json();
-                if (tracks.length > 0) {
-                    footerQuotes = tracks.map(t => ({
-                        text: t.name,
-                        attr: t.artist
-                    }));
-                    // Shuffle them
-                    for (let i = footerQuotes.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [footerQuotes[i], footerQuotes[j]] = [footerQuotes[j], footerQuotes[i]];
-                    }
+                const lyrics = await resp.json();
+                if (lyrics.length > 0) {
+                    footerQuotes = lyrics;
                     // Set the first one immediately
                     if (quoteText && quoteAttr) {
-                        quoteText.textContent = '"' + footerQuotes[0].text + '"';
+                        quoteText.textContent = '\u201C' + footerQuotes[0].text + '\u201D';
                         quoteAttr.textContent = footerQuotes[0].attr;
                     }
                 }
             }
-        } catch(e) {}
+        } catch(e) {
+            console.log('Lyrics fetch failed, using default quote');
+        }
     })();
     {% endif %}
 
@@ -987,7 +979,7 @@ loadCompareUsers();
 
             setTimeout(() => {
                 quoteIndex = (quoteIndex + 1) % footerQuotes.length;
-                quoteText.textContent = '"' + footerQuotes[quoteIndex].text + '"';
+                quoteText.textContent = '\u201C' + footerQuotes[quoteIndex].text + '\u201D';
                 quoteAttr.textContent = footerQuotes[quoteIndex].attr;
                 quoteText.classList.remove('fade-out');
                 quoteAttr.classList.remove('fade-out');
