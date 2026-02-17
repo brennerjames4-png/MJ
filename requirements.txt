@@ -2,7 +2,6 @@ fastapi
 uvicorn[standard]
 httpx
 python-dotenv
-aiosqlite
-databases
 jinja2
 itsdangerous
+asyncpg

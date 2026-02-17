@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from itsdangerous import URLSafeSerializer
 
-from database import init_db, get_db
+from database import init_db, get_db, release_db
 
 load_dotenv()
 
@@ -34,8 +34,8 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
 
 # --- Auth helpers ---
@@ -77,28 +77,28 @@ async def refresh_access_token(refresh_token: str):
 
 
 async def get_valid_token(user_id: str):
-    db = await get_db()
-    row = await db.execute("SELECT access_token, refresh_token, token_expires_at FROM users WHERE id = ?", (user_id,))
-    user = await row.fetchone()
-    if not user:
-        await db.close()
-        return None
-
-    if time.time() > user["token_expires_at"] - 60:
-        token_data = await refresh_access_token(user["refresh_token"])
-        new_access = token_data["access_token"]
-        new_expires = time.time() + token_data["expires_in"]
-        new_refresh = token_data.get("refresh_token", user["refresh_token"])
-        await db.execute(
-            "UPDATE users SET access_token=?, refresh_token=?, token_expires_at=? WHERE id=?",
-            (new_access, new_refresh, new_expires, user_id)
+    conn = await get_db()
+    try:
+        row = await conn.fetchrow(
+            "SELECT access_token, refresh_token, token_expires_at FROM users WHERE id = $1", user_id
         )
-        await db.commit()
-        await db.close()
-        return new_access
+        if not row:
+            return None
 
-    await db.close()
-    return user["access_token"]
+        if time.time() > row["token_expires_at"] - 60:
+            token_data = await refresh_access_token(row["refresh_token"])
+            new_access = token_data["access_token"]
+            new_expires = time.time() + token_data["expires_in"]
+            new_refresh = token_data.get("refresh_token", row["refresh_token"])
+            await conn.execute(
+                "UPDATE users SET access_token=$1, refresh_token=$2, token_expires_at=$3 WHERE id=$4",
+                new_access, new_refresh, new_expires, user_id
+            )
+            return new_access
+
+        return row["access_token"]
+    finally:
+        await release_db(conn)
 
 
 async def spotify_get(token: str, endpoint: str, params: dict = None):
@@ -130,18 +130,18 @@ async def index(request: Request):
     if not user_id:
         return templates.TemplateResponse("index.html", {"request": request, "logged_in": False})
 
-    db = await get_db()
-    row = await db.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-    user = await row.fetchone()
-    await db.close()
-    if not user:
-        return templates.TemplateResponse("index.html", {"request": request, "logged_in": False})
-
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "logged_in": True,
-        "user": dict(user),
-    })
+    conn = await get_db()
+    try:
+        row = await conn.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
+        if not row:
+            return templates.TemplateResponse("index.html", {"request": request, "logged_in": False})
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "logged_in": True,
+            "user": dict(row),
+        })
+    finally:
+        await release_db(conn)
 
 
 @app.get("/login")
@@ -169,19 +169,20 @@ async def callback(request: Request, code: str = None, error: str = None):
     images = profile.get("images", [])
     image_url = images[0]["url"] if images else ""
 
-    db = await get_db()
-    await db.execute("""
-        INSERT INTO users (id, display_name, image_url, access_token, refresh_token, token_expires_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON CONFLICT(id) DO UPDATE SET
-            display_name=excluded.display_name,
-            image_url=excluded.image_url,
-            access_token=excluded.access_token,
-            refresh_token=excluded.refresh_token,
-            token_expires_at=excluded.token_expires_at
-    """, (user_id, display_name, image_url, access_token, refresh_token, expires_at))
-    await db.commit()
-    await db.close()
+    conn = await get_db()
+    try:
+        await conn.execute("""
+            INSERT INTO users (id, display_name, image_url, access_token, refresh_token, token_expires_at)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT(id) DO UPDATE SET
+                display_name=EXCLUDED.display_name,
+                image_url=EXCLUDED.image_url,
+                access_token=EXCLUDED.access_token,
+                refresh_token=EXCLUDED.refresh_token,
+                token_expires_at=EXCLUDED.token_expires_at
+        """, user_id, display_name, image_url, access_token, refresh_token, expires_at)
+    finally:
+        await release_db(conn)
 
     response = RedirectResponse("/")
     session_token = serializer.dumps(user_id)
@@ -203,11 +204,12 @@ async def api_users(request: Request):
     user_id = get_current_user_id(request)
     if not user_id:
         raise HTTPException(401)
-    db = await get_db()
-    rows = await db.execute("SELECT id, display_name, image_url FROM users WHERE id != ?", (user_id,))
-    users = [dict(r) for r in await rows.fetchall()]
-    await db.close()
-    return users
+    conn = await get_db()
+    try:
+        rows = await conn.fetch("SELECT id, display_name, image_url FROM users WHERE id != $1", user_id)
+        return [dict(r) for r in rows]
+    finally:
+        await release_db(conn)
 
 
 @app.get("/api/me/top-tracks")
@@ -322,23 +324,24 @@ async def share_song(request: Request):
     if not user_id:
         raise HTTPException(401)
     body = await request.json()
-    db = await get_db()
-    await db.execute("""
-        INSERT INTO shared_songs (from_user_id, to_user_id, track_id, track_name, artist_name, album_image, preview_url, spotify_url, message)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        user_id,
-        body["to_user_id"],
-        body["track_id"],
-        body["track_name"],
-        body["artist_name"],
-        body.get("album_image", ""),
-        body.get("preview_url", ""),
-        body.get("spotify_url", ""),
-        body.get("message", ""),
-    ))
-    await db.commit()
-    await db.close()
+    conn = await get_db()
+    try:
+        await conn.execute("""
+            INSERT INTO shared_songs (from_user_id, to_user_id, track_id, track_name, artist_name, album_image, preview_url, spotify_url, message)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        """,
+            user_id,
+            body["to_user_id"],
+            body["track_id"],
+            body["track_name"],
+            body["artist_name"],
+            body.get("album_image", ""),
+            body.get("preview_url", ""),
+            body.get("spotify_url", ""),
+            body.get("message", ""),
+        )
+    finally:
+        await release_db(conn)
     return {"ok": True}
 
 
@@ -347,18 +350,19 @@ async def get_shared(request: Request):
     user_id = get_current_user_id(request)
     if not user_id:
         raise HTTPException(401)
-    db = await get_db()
-    rows = await db.execute("""
-        SELECT s.*, u.display_name as from_name,
-               (SELECT reaction FROM reactions WHERE shared_song_id = s.id AND user_id = ?) as my_reaction
-        FROM shared_songs s
-        JOIN users u ON u.id = s.from_user_id
-        WHERE s.to_user_id = ? OR s.from_user_id = ?
-        ORDER BY s.created_at DESC
-    """, (user_id, user_id, user_id))
-    songs = [dict(r) for r in await rows.fetchall()]
-    await db.close()
-    return songs
+    conn = await get_db()
+    try:
+        rows = await conn.fetch("""
+            SELECT s.*, u.display_name as from_name,
+                   (SELECT reaction FROM reactions WHERE shared_song_id = s.id AND user_id = $1) as my_reaction
+            FROM shared_songs s
+            JOIN users u ON u.id = s.from_user_id
+            WHERE s.to_user_id = $2 OR s.from_user_id = $3
+            ORDER BY s.created_at DESC
+        """, user_id, user_id, user_id)
+        return [dict(r) for r in rows]
+    finally:
+        await release_db(conn)
 
 
 @app.post("/api/react")
@@ -367,14 +371,15 @@ async def react_to_song(request: Request):
     if not user_id:
         raise HTTPException(401)
     body = await request.json()
-    db = await get_db()
-    await db.execute("""
-        INSERT INTO reactions (shared_song_id, user_id, reaction)
-        VALUES (?, ?, ?)
-        ON CONFLICT(shared_song_id, user_id) DO UPDATE SET reaction=excluded.reaction
-    """, (body["shared_song_id"], user_id, body["reaction"]))
-    await db.commit()
-    await db.close()
+    conn = await get_db()
+    try:
+        await conn.execute("""
+            INSERT INTO reactions (shared_song_id, user_id, reaction)
+            VALUES ($1, $2, $3)
+            ON CONFLICT(shared_song_id, user_id) DO UPDATE SET reaction=EXCLUDED.reaction
+        """, body["shared_song_id"], user_id, body["reaction"])
+    finally:
+        await release_db(conn)
     return {"ok": True}
 
 
