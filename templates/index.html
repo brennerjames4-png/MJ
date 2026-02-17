@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MJ - Music Jam</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MJ</h1>
+            <p class="subtitle">Music Jam - Compare & Share</p>
+            {% if logged_in %}
+            <div class="user-bar">
+                {% if user.image_url %}
+                <img src="{{ user.image_url }}" alt="avatar" class="avatar">
+                {% endif %}
+                <span>{{ user.display_name }}</span>
+                <a href="/logout" class="btn btn-sm">Logout</a>
+            </div>
+            {% endif %}
+        </header>
+
+        {% if not logged_in %}
+        <div class="hero">
+            <h2>Compare your music taste with friends</h2>
+            <p>Connect your Spotify account to share songs, rate each other's picks, and see how your tastes stack up.</p>
+            <a href="/login" class="btn btn-spotify">Connect with Spotify</a>
+        </div>
+        {% else %}
+        <nav class="tabs">
+            <button class="tab active" data-tab="feed">Feed</button>
+            <button class="tab" data-tab="share">Share a Song</button>
+            <button class="tab" data-tab="compare">Compare</button>
+            <button class="tab" data-tab="my-top">My Top Tracks</button>
+        </nav>
+
+        <!-- FEED TAB -->
+        <section id="feed" class="tab-content active">
+            <h2>Shared Songs</h2>
+            <div id="feed-list" class="song-list">
+                <p class="loading">Loading...</p>
+            </div>
+        </section>
+
+        <!-- SHARE TAB -->
+        <section id="share" class="tab-content">
+            <h2>Share a Song</h2>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search for a song...">
+                <button id="search-btn" class="btn">Search</button>
+            </div>
+            <div id="search-results" class="song-list"></div>
+
+            <div id="share-form" class="share-form hidden">
+                <h3>Send to:</h3>
+                <select id="share-to"></select>
+                <textarea id="share-message" placeholder="Add a message (optional)"></textarea>
+                <button id="send-btn" class="btn btn-spotify">Send Song</button>
+            </div>
+        </section>
+
+        <!-- COMPARE TAB -->
+        <section id="compare" class="tab-content">
+            <h2>Compare Tastes</h2>
+            <div class="compare-picker">
+                <label>Compare with:</label>
+                <select id="compare-user"></select>
+                <button id="compare-btn" class="btn">Compare</button>
+            </div>
+            <div id="compare-results" class="hidden">
+                <div class="compat-score">
+                    <span id="compat-number">0</span><span>%</span>
+                    <p>compatibility</p>
+                </div>
+                <div class="compare-grid">
+                    <div>
+                        <h3>Shared Artists</h3>
+                        <ul id="shared-artists"></ul>
+                    </div>
+                    <div>
+                        <h3>Your Top Genres</h3>
+                        <ul id="my-genres"></ul>
+                    </div>
+                    <div>
+                        <h3>Their Top Genres</h3>
+                        <ul id="their-genres"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MY TOP TAB -->
+        <section id="my-top" class="tab-content">
+            <h2>My Top Tracks</h2>
+            <div id="top-tracks-list" class="song-list">
+                <p class="loading">Loading...</p>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    {% if logged_in %}
+    <script>
+        const MY_ID = "{{ user.id }}";
+    </script>
+    <script src="/static/app.js"></script>
+    {% endif %}
+</body>
+</html>

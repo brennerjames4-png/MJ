@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+mj.db
+*.db
+.DS_Store
+/tmp/
