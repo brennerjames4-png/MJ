@@ -235,6 +235,26 @@ async def my_top_tracks(request: Request):
     ]
 
 
+@app.get("/api/me/recently-played")
+async def my_recently_played(request: Request):
+    user_id = get_current_user_id(request)
+    if not user_id:
+        raise HTTPException(401)
+    token = await get_valid_token(user_id)
+    data = await spotify_get(token, "me/player/recently-played", {"limit": 20})
+    return [
+        {
+            "id": item["track"]["id"],
+            "name": item["track"]["name"],
+            "artist": ", ".join(a["name"] for a in item["track"]["artists"]),
+            "album_image": item["track"]["album"]["images"][0]["url"] if item["track"]["album"]["images"] else "",
+            "spotify_url": item["track"]["external_urls"]["spotify"],
+            "played_at": item["played_at"],
+        }
+        for item in data["items"]
+    ]
+
+
 @app.get("/api/me/top-artists")
 async def my_top_artists(request: Request):
     user_id = get_current_user_id(request)

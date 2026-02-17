@@ -776,6 +776,7 @@ a.spotify-link:hover {
             <button class="tab active" data-tab="feed">The Record</button>
             <button class="tab" data-tab="share">Send a Song</button>
             <button class="tab" data-tab="compare">Side by Side</button>
+            <button class="tab" data-tab="recent">Just Played</button>
             <button class="tab" data-tab="my-top">My Catalogue</button>
         </nav>
 
@@ -839,6 +840,14 @@ a.spotify-link:hover {
                         <ul id="their-genres"></ul>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- RECENTLY PLAYED TAB -->
+        <section id="recent" class="tab-content">
+            <h2>Just Played</h2>
+            <div id="recent-tracks-list" class="song-list">
+                <p class="loading">Checking the turntable...</p>
             </div>
         </section>
 
@@ -1096,9 +1105,39 @@ async function loadTopTracks() {
     }
 }
 
+// --- Recently played ---
+async function loadRecentTracks() {
+    const el = document.getElementById('recent-tracks-list');
+    try {
+        const tracks = await api('/api/me/recently-played');
+        if (tracks.length === 0) {
+            el.innerHTML = '<p class="loading">Nothing played recently. Go spin something.</p>';
+            return;
+        }
+        el.innerHTML = tracks.map(t => {
+            const ago = timeAgo(t.played_at);
+            return songCard({ ...t, meta: ago });
+        }).join('');
+    } catch (e) {
+        el.innerHTML = '<p class="loading">Could not load recent plays.</p>';
+    }
+}
+
+function timeAgo(isoDate) {
+    const diff = Date.now() - new Date(isoDate).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+}
+
 // --- Init ---
 loadFeed();
 loadTopTracks();
+loadRecentTracks();
 loadCompareUsers();
     </script>
     {% endif %}
