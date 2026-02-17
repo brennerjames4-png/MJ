@@ -3,29 +3,28 @@ import asyncpg
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-_pool = None
-
-
-async def get_pool():
-    global _pool
-    if _pool is None:
-        _pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=5)
-    return _pool
+_initialized = False
 
 
 async def get_db():
-    pool = await get_pool()
-    return await pool.acquire()
+    """Get a fresh connection for each request (serverless-friendly)."""
+    conn = await asyncpg.connect(DATABASE_URL)
+    return conn
 
 
 async def release_db(conn):
-    pool = await get_pool()
-    await pool.release(conn)
+    """Close the connection after use."""
+    await conn.close()
 
 
-async def init_db():
-    pool = await get_pool()
-    async with pool.acquire() as conn:
+async def ensure_tables():
+    """Create tables if they don't exist. Safe to call multiple times."""
+    global _initialized
+    if _initialized:
+        return
+
+    conn = await asyncpg.connect(DATABASE_URL)
+    try:
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
@@ -61,3 +60,6 @@ async def init_db():
                 UNIQUE(shared_song_id, user_id)
             );
         """)
+        _initialized = True
+    finally:
+        await conn.close()

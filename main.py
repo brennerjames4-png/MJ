@@ -1,17 +1,15 @@
 import os
 import time
 import urllib.parse
-from contextlib import asynccontextmanager
 
 import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from itsdangerous import URLSafeSerializer
 
-from database import init_db, get_db, release_db
+from database import ensure_tables, get_db, release_db
 
 load_dotenv()
 
@@ -27,15 +25,19 @@ API_BASE = "https://api.spotify.com/v1"
 
 serializer = URLSafeSerializer(SECRET_KEY)
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await init_db()
-    yield
-
-app = FastAPI(lifespan=lifespan)
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
+app = FastAPI()
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
+
+
+@app.middleware("http")
+async def db_init_middleware(request: Request, call_next):
+    """Ensure tables exist on first request (lazy init for serverless)."""
+    try:
+        await ensure_tables()
+    except Exception:
+        pass  # Tables likely already exist
+    response = await call_next(request)
+    return response
 
 
 # --- Auth helpers ---
