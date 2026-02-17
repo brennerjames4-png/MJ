@@ -653,6 +653,49 @@ header h1 span.accent {
     opacity: 0.7;
 }
 
+/* --- JUST PLAYED SIDE BY SIDE --- */
+.recent-side-by-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 700px) {
+    .recent-side-by-side {
+        grid-template-columns: 1fr;
+    }
+}
+
+.recent-column {
+    min-width: 0;
+}
+
+.recent-col-header {
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--prism);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 400;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.recent-column .song-card img {
+    width: 40px;
+    height: 40px;
+}
+
+.recent-column .song-card .name {
+    font-size: 13px;
+}
+
+.recent-column .song-card .artist {
+    font-size: 11px;
+}
+
 /* --- UTILITIES --- */
 .hidden { display: none; }
 
@@ -828,8 +871,19 @@ a.spotify-link:hover {
                 <div class="combined-chart">
                     <h3 class="chart-title">Just Played</h3>
                     <p class="chart-subtitle">What you've both been listening to recently</p>
-                    <div id="recent-tracks-list" class="song-list">
-                        <p class="loading">Checking the turntable...</p>
+                    <div class="recent-side-by-side">
+                        <div class="recent-column">
+                            <h4 class="recent-col-header" id="recent-left-name">You</h4>
+                            <div id="recent-left" class="song-list">
+                                <p class="loading">Checking the turntable...</p>
+                            </div>
+                        </div>
+                        <div class="recent-column">
+                            <h4 class="recent-col-header" id="recent-right-name">Them</h4>
+                            <div id="recent-right" class="song-list">
+                                <p class="loading">Checking the turntable...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1107,22 +1161,33 @@ async function loadTopTracks() {
     }
 }
 
-// --- Recently played (both users) ---
+// --- Recently played (side by side) ---
 async function loadRecentTracks() {
-    const el = document.getElementById('recent-tracks-list');
+    const leftEl = document.getElementById('recent-left');
+    const rightEl = document.getElementById('recent-right');
+    const leftName = document.getElementById('recent-left-name');
+    const rightName = document.getElementById('recent-right-name');
     try {
         const tracks = await api('/api/recently-played');
-        if (tracks.length === 0) {
-            el.innerHTML = '<p class="loading">Nothing played recently. Go spin something.</p>';
-            return;
+        const mine = tracks.filter(t => t.user_id === MY_ID);
+        const theirs = tracks.filter(t => t.user_id !== MY_ID);
+
+        // Set column headers
+        leftName.textContent = 'You';
+        if (theirs.length > 0) {
+            rightName.textContent = theirs[0].user_name;
         }
-        el.innerHTML = tracks.map(t => {
-            const ago = timeAgo(t.played_at);
-            const who = t.user_id === MY_ID ? 'You' : t.user_name;
-            return songCard({ ...t, meta: `${who} \u00B7 ${ago}` });
-        }).join('');
+
+        leftEl.innerHTML = mine.length
+            ? mine.map(t => songCard({ ...t, meta: timeAgo(t.played_at) })).join('')
+            : '<p class="loading">Nothing played recently.</p>';
+
+        rightEl.innerHTML = theirs.length
+            ? theirs.map(t => songCard({ ...t, meta: timeAgo(t.played_at) })).join('')
+            : '<p class="loading">Nothing played recently.</p>';
     } catch (e) {
-        el.innerHTML = '<p class="loading">Could not load recent plays.</p>';
+        leftEl.innerHTML = '<p class="loading">Could not load recent plays.</p>';
+        rightEl.innerHTML = '<p class="loading">Could not load recent plays.</p>';
     }
 }
 
