@@ -938,28 +938,47 @@ loadCompareUsers();
     {% endif %}
 
     <script>
-    // --- Rotating footer quotes ---
-    const quotes = [
+    // --- Rotating footer quotes from user's top 50 ---
+    const defaultQuotes = [
         { text: "Music is the shorthand of emotion", attr: "Leo Tolstoy" },
-        { text: "One good thing about music, when it hits you, you feel no pain", attr: "Bob Marley" },
         { text: "Where words fail, music speaks", attr: "Hans Christian Andersen" },
         { text: "Without music, life would be a mistake", attr: "Friedrich Nietzsche" },
-        { text: "Music expresses that which cannot be said", attr: "Victor Hugo" },
-        { text: "Life is one grand sweet song, so start the music", attr: "Ronald Reagan" },
-        { text: "Music is the universal language of mankind", attr: "Henry Wadsworth Longfellow" },
-        { text: "After silence, that which comes nearest to expressing the inexpressible is music", attr: "Aldous Huxley" },
-        { text: "Music gives a soul to the universe, wings to the mind, flight to the imagination", attr: "Plato" },
-        { text: "I think music in itself is healing", attr: "Billy Joel" },
-        { text: "Music is the strongest form of magic", attr: "Marilyn Manson" },
-        { text: "Music is what feelings sound like", attr: "Unknown" },
-        { text: "To live is to be musical, starting with the blood dancing in your veins", attr: "Michael Jackson" },
-        { text: "Music washes away from the soul the dust of everyday life", attr: "Berthold Auerbach" },
-        { text: "Music is the art which is most nigh to tears and memory", attr: "Oscar Wilde" },
     ];
 
+    let footerQuotes = defaultQuotes;
     let quoteIndex = 0;
     const quoteText = document.getElementById('quote-text');
     const quoteAttr = document.getElementById('quote-attr');
+
+    // Try to load user's top tracks for the footer
+    {% if logged_in %}
+    (async function() {
+        try {
+            const resp = await fetch('/api/me/top-tracks', {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (resp.ok) {
+                const tracks = await resp.json();
+                if (tracks.length > 0) {
+                    footerQuotes = tracks.map(t => ({
+                        text: t.name,
+                        attr: t.artist
+                    }));
+                    // Shuffle them
+                    for (let i = footerQuotes.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [footerQuotes[i], footerQuotes[j]] = [footerQuotes[j], footerQuotes[i]];
+                    }
+                    // Set the first one immediately
+                    if (quoteText && quoteAttr) {
+                        quoteText.textContent = '"' + footerQuotes[0].text + '"';
+                        quoteAttr.textContent = footerQuotes[0].attr;
+                    }
+                }
+            }
+        } catch(e) {}
+    })();
+    {% endif %}
 
     if (quoteText && quoteAttr) {
         setInterval(() => {
@@ -967,9 +986,9 @@ loadCompareUsers();
             quoteAttr.classList.add('fade-out');
 
             setTimeout(() => {
-                quoteIndex = (quoteIndex + 1) % quotes.length;
-                quoteText.textContent = '"' + quotes[quoteIndex].text + '"';
-                quoteAttr.textContent = quotes[quoteIndex].attr;
+                quoteIndex = (quoteIndex + 1) % footerQuotes.length;
+                quoteText.textContent = '"' + footerQuotes[quoteIndex].text + '"';
+                quoteAttr.textContent = footerQuotes[quoteIndex].attr;
                 quoteText.classList.remove('fade-out');
                 quoteAttr.classList.remove('fade-out');
             }, 600);
