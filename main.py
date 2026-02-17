@@ -283,12 +283,64 @@ async def compare(request: Request, other_user_id: str):
     compatibility = round(len(shared) / (total_possible / 2) * 100, 1)
     compatibility = min(compatibility, 100)
 
+    # --- Build combined ranked track list ---
+    # Index my tracks: id -> {rank, track info}
+    all_tracks = {}
+    for i, t in enumerate(my_tracks["items"]):
+        tid = t["id"]
+        all_tracks[tid] = {
+            "id": tid,
+            "name": t["name"],
+            "artist": ", ".join(a["name"] for a in t["artists"]),
+            "album_image": t["album"]["images"][0]["url"] if t["album"]["images"] else "",
+            "spotify_url": t["external_urls"]["spotify"],
+            "my_rank": i + 1,
+            "their_rank": None,
+        }
+
+    # Merge other user's tracks
+    for i, t in enumerate(other_tracks["items"]):
+        tid = t["id"]
+        if tid in all_tracks:
+            # Track exists in both lists
+            all_tracks[tid]["their_rank"] = i + 1
+        else:
+            all_tracks[tid] = {
+                "id": tid,
+                "name": t["name"],
+                "artist": ", ".join(a["name"] for a in t["artists"]),
+                "album_image": t["album"]["images"][0]["url"] if t["album"]["images"] else "",
+                "spotify_url": t["external_urls"]["spotify"],
+                "my_rank": None,
+                "their_rank": i + 1,
+            }
+
+    # Score and sort: shared songs get average rank, solo songs get rank + 25 penalty
+    for tid, info in all_tracks.items():
+        if info["my_rank"] and info["their_rank"]:
+            info["score"] = (info["my_rank"] + info["their_rank"]) / 2
+            info["shared"] = True
+        elif info["my_rank"]:
+            info["score"] = info["my_rank"] + 25
+            info["shared"] = False
+        else:
+            info["score"] = info["their_rank"] + 25
+            info["shared"] = False
+
+    combined_list = sorted(all_tracks.values(), key=lambda x: x["score"])
+
+    # Assign combined rank
+    for i, track in enumerate(combined_list):
+        track["combined_rank"] = i + 1
+        del track["score"]  # Don't send internal score to frontend
+
     return {
         "compatibility_score": compatibility,
         "shared_artists": [my_artists[aid] for aid in shared],
         "shared_track_count": len(shared_tracks),
         "my_top_genres": _top_genres(my_top["items"]),
         "their_top_genres": _top_genres(other_top["items"]),
+        "combined_tracks": combined_list,
     }
 
 

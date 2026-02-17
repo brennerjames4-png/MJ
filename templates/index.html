@@ -564,6 +564,64 @@ header h1 span.accent {
 
 .compare-grid li:hover { color: var(--ink); }
 
+/* --- COMBINED CHART --- */
+.combined-chart {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-light);
+}
+
+.chart-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.chart-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    color: var(--ink-dim);
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 24px;
+}
+
+.combined-chart .song-card {
+    position: relative;
+}
+
+.combined-chart .song-card .combined-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--prism);
+    min-width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.combined-chart .song-card .rank-detail {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-top: 2px;
+}
+
+.combined-chart .song-card .rank-detail .shared-badge {
+    color: var(--prism);
+    font-weight: 600;
+}
+
+.combined-chart .song-card.is-shared {
+    background: rgba(183, 101, 77, 0.04);
+    border-left: 3px solid var(--prism);
+}
+
 /* --- UTILITIES --- */
 .hidden { display: none; }
 
@@ -742,6 +800,12 @@ a.spotify-link:hover {
                         <ul id="their-genres"></ul>
                     </div>
                 </div>
+
+                <div class="combined-chart">
+                    <h3 class="chart-title">The Definitive Chart</h3>
+                    <p class="chart-subtitle">Every song from both your top 50s, ranked together</p>
+                    <div id="combined-tracks" class="song-list"></div>
+                </div>
             </div>
         </section>
 
@@ -912,6 +976,29 @@ document.getElementById('compare-btn').addEventListener('click', async () => {
             : '<li>No shared artists yet</li>';
         document.getElementById('my-genres').innerHTML = data.my_top_genres.map(g => `<li>${g}</li>`).join('');
         document.getElementById('their-genres').innerHTML = data.their_top_genres.map(g => `<li>${g}</li>`).join('');
+
+        // Render combined chart
+        const ct = document.getElementById('combined-tracks');
+        if (data.combined_tracks && data.combined_tracks.length > 0) {
+            ct.innerHTML = data.combined_tracks.map(t => {
+                const myR = t.my_rank ? `Your #${t.my_rank}` : 'Not in your top 50';
+                const theirR = t.their_rank ? `Their #${t.their_rank}` : 'Not in their top 50';
+                const sharedClass = t.shared ? ' is-shared' : '';
+                const sharedLabel = t.shared ? '<span class="shared-badge"> \u2022 Both of you</span>' : '';
+                return `
+                    <div class="song-card${sharedClass}">
+                        <div class="combined-rank">#${t.combined_rank}</div>
+                        ${t.album_image ? `<img src="${t.album_image}" alt="">` : ''}
+                        <div class="song-info">
+                            <div class="name">${t.name}</div>
+                            <div class="artist">${t.artist}</div>
+                            <div class="rank-detail">${myR} \u00B7 ${theirR}${sharedLabel}</div>
+                            ${t.spotify_url ? `<a class="spotify-link" href="${t.spotify_url}" target="_blank">Listen on Spotify</a>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     } catch (e) {
         alert('Could not compare. Make sure you\'re both connected.');
     }
