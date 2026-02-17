@@ -938,13 +938,14 @@ async function react(songId, reaction, btn) {
 
 // --- Search & share ---
 let selectedTrack = null;
+let searchResultsCache = [];
 
 document.getElementById('search-btn').addEventListener('click', async () => {
     const q = document.getElementById('search-input').value.trim();
     if (!q) return;
-    const results = await api(`/api/search?q=${encodeURIComponent(q)}`);
-    document.getElementById('search-results').innerHTML = results.map(t =>
-        songCard(t, `<button class="share-btn" onclick='selectTrack(${JSON.stringify(t).replace(/'/g, "&#39;")})'>Share</button>`)
+    searchResultsCache = await api(`/api/search?q=${encodeURIComponent(q)}`);
+    document.getElementById('search-results').innerHTML = searchResultsCache.map((t, i) =>
+        songCard(t, `<button class="share-btn" data-index="${i}">Share</button>`)
     ).join('');
 });
 
@@ -952,14 +953,23 @@ document.getElementById('search-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('search-btn').click();
 });
 
-window.selectTrack = async function(track) {
+// Use event delegation for share buttons
+document.getElementById('search-results').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.share-btn');
+    if (!btn) return;
+    const index = parseInt(btn.dataset.index, 10);
+    const track = searchResultsCache[index];
+    if (!track) return;
+
     selectedTrack = track;
     document.getElementById('share-form').classList.remove('hidden');
+    // Scroll the form into view
+    document.getElementById('share-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
     const users = await api('/api/users');
     const sel = document.getElementById('share-to');
     sel.innerHTML = users.map(u => `<option value="${u.id}">${u.display_name}</option>`).join('');
     if (users.length === 0) sel.innerHTML = '<option disabled>No one else is here yet</option>';
-};
+});
 
 document.getElementById('send-btn').addEventListener('click', async () => {
     if (!selectedTrack) return;
