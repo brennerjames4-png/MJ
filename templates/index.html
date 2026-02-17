@@ -817,6 +817,14 @@ a.spotify-link:hover {
                     <span id="compat-number">0</span><span>%</span>
                     <p>musical kinship</p>
                 </div>
+
+                <div class="combined-chart">
+                    <h3 class="chart-title">The Definitive Chart</h3>
+                    <p class="chart-subtitle">Every song from both your top 50s, ranked together</p>
+                    <div id="combined-tracks" class="song-list"></div>
+                    <button id="show-more-chart" class="btn btn-expand hidden" onclick="toggleChart()">Show full chart <span id="chart-remaining"></span></button>
+                </div>
+
                 <div class="compare-grid">
                     <div>
                         <h3>Artists you both love</h3>
@@ -830,13 +838,6 @@ a.spotify-link:hover {
                         <h3>Their sound</h3>
                         <ul id="their-genres"></ul>
                     </div>
-                </div>
-
-                <div class="combined-chart">
-                    <h3 class="chart-title">The Definitive Chart</h3>
-                    <p class="chart-subtitle">Every song from both your top 50s, ranked together</p>
-                    <div id="combined-tracks" class="song-list"></div>
-                    <button id="show-more-chart" class="btn btn-expand hidden" onclick="toggleChart()">Show full chart <span id="chart-remaining"></span></button>
                 </div>
             </div>
         </section>
