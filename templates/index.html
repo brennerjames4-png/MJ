@@ -776,7 +776,6 @@ a.spotify-link:hover {
             <button class="tab active" data-tab="feed">The Record</button>
             <button class="tab" data-tab="share">Send a Song</button>
             <button class="tab" data-tab="compare">Side by Side</button>
-            <button class="tab" data-tab="recent">Just Played</button>
             <button class="tab" data-tab="my-top">My Catalogue</button>
         </nav>
 
@@ -826,6 +825,14 @@ a.spotify-link:hover {
                     <button id="show-more-chart" class="btn btn-expand hidden" onclick="toggleChart()">Show full chart <span id="chart-remaining"></span></button>
                 </div>
 
+                <div class="combined-chart">
+                    <h3 class="chart-title">Just Played</h3>
+                    <p class="chart-subtitle">What you've both been listening to recently</p>
+                    <div id="recent-tracks-list" class="song-list">
+                        <p class="loading">Checking the turntable...</p>
+                    </div>
+                </div>
+
                 <div class="compare-grid">
                     <div>
                         <h3>Artists you both love</h3>
@@ -840,14 +847,6 @@ a.spotify-link:hover {
                         <ul id="their-genres"></ul>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- RECENTLY PLAYED TAB -->
-        <section id="recent" class="tab-content">
-            <h2>Just Played</h2>
-            <div id="recent-tracks-list" class="song-list">
-                <p class="loading">Checking the turntable...</p>
             </div>
         </section>
 
@@ -1062,6 +1061,9 @@ document.getElementById('compare-btn').addEventListener('click', async () => {
                 showMoreBtn.classList.add('hidden');
             }
         }
+
+        // Load recently played for both users
+        loadRecentTracks();
     } catch (e) {
         alert('Could not compare. Make sure you\'re both connected.');
     }
@@ -1138,7 +1140,6 @@ function timeAgo(isoDate) {
 // --- Init ---
 loadFeed();
 loadTopTracks();
-loadRecentTracks();
 loadCompareUsers();
     </script>
     {% endif %}
