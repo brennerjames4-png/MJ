@@ -1272,48 +1272,47 @@ loadCompareUsers();
     {% endif %}
 
     <script>
-    // --- Rotating footer quotes ---
-    const footerQuotes = [
+    // --- Rotating footer lyrics from user's top 50 songs ---
+    const defaultQuotes = [
         { text: "One good thing about music, when it hits you, you feel no pain", attr: "Bob Marley" },
-        { text: "Music is the shorthand of emotion", attr: "Leo Tolstoy" },
-        { text: "Where words fail, music speaks", attr: "Hans Christian Andersen" },
-        { text: "Without music, life would be a mistake", attr: "Friedrich Nietzsche" },
-        { text: "Music expresses that which cannot be said and on which it is impossible to be silent", attr: "Victor Hugo" },
-        { text: "If music be the food of love, play on", attr: "William Shakespeare" },
-        { text: "Music is the universal language of mankind", attr: "Henry Wadsworth Longfellow" },
-        { text: "Life is one grand sweet song, so start the music", attr: "Ronald Reagan" },
-        { text: "Music gives a soul to the universe, wings to the mind, flight to the imagination", attr: "Plato" },
-        { text: "After silence, that which comes nearest to expressing the inexpressible is music", attr: "Aldous Huxley" },
-        { text: "Music is the strongest form of magic", attr: "Marilyn Manson" },
-        { text: "Music is the divine way to tell beautiful, poetic things to the heart", attr: "Pablo Casals" },
     ];
 
-    // Shuffle on load
-    for (let i = footerQuotes.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [footerQuotes[i], footerQuotes[j]] = [footerQuotes[j], footerQuotes[i]];
-    }
-
+    let footerQuotes = defaultQuotes;
     let quoteIndex = 0;
     const quoteText = document.getElementById('quote-text');
     const quoteAttr = document.getElementById('quote-attr');
 
-    if (quoteText && quoteAttr) {
-        quoteText.textContent = '\u201C' + footerQuotes[0].text + '\u201D';
-        quoteAttr.textContent = '\u2014 ' + footerQuotes[0].attr;
+    // Load actual lyrics from the user's top 50 tracks
+    {% if logged_in %}
+    (async function() {
+        try {
+            const resp = await fetch('/api/me/top-lyrics', {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (resp.ok) {
+                const lyrics = await resp.json();
+                if (lyrics.length > 0) {
+                    footerQuotes = lyrics;
+                    if (quoteText && quoteAttr) {
+                        quoteText.textContent = '\u201C' + footerQuotes[0].text + '\u201D';
+                        quoteAttr.textContent = '\u2014 ' + footerQuotes[0].attr;
+                    }
+                }
+            }
+        } catch(e) {}
+    })();
+    {% endif %}
 
+    if (quoteText && quoteAttr) {
         setInterval(() => {
-            // Fade out
             quoteText.classList.add('fade-out');
             quoteAttr.classList.add('fade-out');
 
-            // Wait for fade-out to fully finish, then swap text and fade in
             setTimeout(() => {
                 quoteIndex = (quoteIndex + 1) % footerQuotes.length;
                 quoteText.textContent = '\u201C' + footerQuotes[quoteIndex].text + '\u201D';
                 quoteAttr.textContent = '\u2014 ' + footerQuotes[quoteIndex].attr;
 
-                // Small delay before fading in to avoid flash
                 requestAnimationFrame(() => {
                     quoteText.classList.remove('fade-out');
                     quoteAttr.classList.remove('fade-out');
