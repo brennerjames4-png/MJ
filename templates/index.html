@@ -776,7 +776,7 @@ a.spotify-link:hover {
 .footer-quote {
     text-align: center;
     margin-top: 60px;
-    padding: 20px 0;
+    padding: 20px 16px;
     border-top: 1px solid var(--border-light);
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
@@ -784,16 +784,19 @@ a.spotify-link:hover {
     font-size: 0.95rem;
     font-weight: 300;
     letter-spacing: 0.5px;
-    min-height: 80px;
+    height: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 .footer-quote .quote-text {
-    transition: opacity 0.6s ease;
+    transition: opacity 0.5s ease;
     opacity: 1;
+    max-width: 600px;
+    line-height: 1.5;
 }
 
 .footer-quote .quote-text.fade-out {
@@ -809,8 +812,8 @@ a.spotify-link:hover {
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--ink-dim);
-    opacity: 0.6;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.5s ease;
+    opacity: 1;
 }
 
 .footer-quote .attr.fade-out {
@@ -1300,16 +1303,22 @@ loadCompareUsers();
         quoteAttr.textContent = '\u2014 ' + footerQuotes[0].attr;
 
         setInterval(() => {
+            // Fade out
             quoteText.classList.add('fade-out');
             quoteAttr.classList.add('fade-out');
 
+            // Wait for fade-out to fully finish, then swap text and fade in
             setTimeout(() => {
                 quoteIndex = (quoteIndex + 1) % footerQuotes.length;
                 quoteText.textContent = '\u201C' + footerQuotes[quoteIndex].text + '\u201D';
                 quoteAttr.textContent = '\u2014 ' + footerQuotes[quoteIndex].attr;
-                quoteText.classList.remove('fade-out');
-                quoteAttr.classList.remove('fade-out');
-            }, 600);
+
+                // Small delay before fading in to avoid flash
+                requestAnimationFrame(() => {
+                    quoteText.classList.remove('fade-out');
+                    quoteAttr.classList.remove('fade-out');
+                });
+            }, 550);
         }, 10000);
     }
     </script>
