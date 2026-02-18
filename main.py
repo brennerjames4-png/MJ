@@ -482,7 +482,7 @@ async def react_to_song(request: Request):
 
 @app.get("/api/me/top-lyrics")
 async def my_top_lyrics(request: Request):
-    """Fetch random lyrics lines from the user's top 50 tracks using lyrics.ovh."""
+    """Fetch random lyrics lines from the user's top tracks using lyrics.ovh."""
     import asyncio
 
     user_id = get_current_user_id(request)
@@ -490,6 +490,11 @@ async def my_top_lyrics(request: Request):
         raise HTTPException(401)
     token = await get_valid_token(user_id)
     data = await spotify_get(token, "me/top/tracks", {"limit": 50, "time_range": "medium_term"})
+
+    # Pick 15 random tracks to keep within Vercel's time limit
+    tracks = data["items"]
+    random.shuffle(tracks)
+    tracks = tracks[:15]
 
     async def fetch_lyric(client, track_name, artist_name):
         clean_name = track_name.split(" (")[0].split(" -")[0].split(" feat")[0].split(" ft.")[0].strip()
@@ -517,15 +522,20 @@ async def my_top_lyrics(request: Request):
             pass
         return None
 
-    # Fire all requests in parallel with a short timeout per request
-    async with httpx.AsyncClient(timeout=3.0) as client:
+    # Fire requests in parallel, hard cap at 7 seconds total
+    async with httpx.AsyncClient(timeout=4.0) as client:
         tasks = []
-        for t in data["items"]:
+        for t in tracks:
             artist_name = t["artists"][0]["name"] if t["artists"] else "Unknown"
             tasks.append(fetch_lyric(client, t["name"], artist_name))
 
-        # Wait for all but cap total time at 8 seconds
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        try:
+            results = await asyncio.wait_for(
+                asyncio.gather(*tasks, return_exceptions=True),
+                timeout=7.0
+            )
+        except asyncio.TimeoutError:
+            results = []
 
     lyrics_quotes = [r for r in results if r and not isinstance(r, Exception)]
     random.shuffle(lyrics_quotes)
